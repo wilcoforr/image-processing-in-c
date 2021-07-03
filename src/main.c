@@ -1,5 +1,5 @@
 /*
-    Basic Image Processing Program example 1
+    Basic Image Processing Program example 1 with Convolve
 */
 
 /* C std lib */
@@ -11,19 +11,18 @@
 #include "image.h"
 
 int main (void) {
-    /* magic */
+    /* extern magic cuz functions are defined after main */
     extern void
         Image_in(struct Image *in), 
         Convolve(struct Image *in, struct Image *out, struct Image *mask),
         Image_out(struct Image *out);
 
+    /* init */
     struct Image in, out, mask;
-
     /* indexes for mask generation section */
     signed char *temp = NULL;
     int i = 0;
 
-    /* init */
     in.rows = out.rows = 256; //todo: uint8.maxvalue
     in.columns = out.columns = 256;
     in.image_type = out.image_type = BASIC;
@@ -78,10 +77,10 @@ int main (void) {
     Image_out(&out);
 
 
-   //cleanup (todo later: run valgrind)
-   free(in.data);
-   free(out.data);
-   free(mask.data);
+    //cleanup (todo later: run valgrind)
+    free(in.data);
+    free(out.data);
+    free(mask.data);
 
     return EXIT_SUCCESS;
 }
@@ -104,7 +103,6 @@ void Convole(struct Image *in, struct Image *mask, struct Image *out) {
     long i, j, m, n, idx, jdx = 0;
     int ms, im, val = 0;
     BYTE* temp = NULL;
-
 
     //outer summation loop
     for (i = 0; i < in->rows; ++i) {
@@ -139,5 +137,17 @@ void Convole(struct Image *in, struct Image *mask, struct Image *out) {
     }
 }
 
+// output the image to a file (either by creating one or overwriting the existing one)
 
+void Image_out (struct Image *out) {
+    FILE* ofile = NULL;
+    int i = 0;
 
+    ofile = fopen("CONVOUT.RAW", "wb"); //wb write binary
+
+    for (i = 0; i < out->rows; ++i) {
+        fwrite(out->data + i * out->columns, out->columns, 1, ofile); //todo later: fwrite_s
+    }
+
+    fclose(ofile);
+}
