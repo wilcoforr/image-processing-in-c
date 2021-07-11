@@ -6,46 +6,49 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
+#include <stdint.h>
 
 /* custom image header */
 #include "image.h"
 
+#define UINT8_MAX_PLUS_ONE = 256
+
+
 int main (void) {
     /* extern magic cuz functions are defined after main */
     extern void
-        Image_in(struct Image *in), 
-        Convolve(struct Image *in, struct Image *out, struct Image *mask),
-        Image_out(struct Image *out);
+        Image_in(struct Image* in), 
+        Convolve(struct Image* in, struct Image* out, struct Image* mask),
+        Image_out(struct Image* out);
 
     /* init */
     struct Image in, out, mask;
     /* indexes for mask generation section */
-    signed char *temp = NULL;
-    int i = 0;
+    signed char* temp = NULL;
 
-    in.rows = out.rows = 256; //todo: uint8.maxvalue
-    in.columns = out.columns = 256;
+    in.rows = out.rows = uint8y UINT8_MAX_PLUS_ONE;
+    in.columns = out.columns = UINT8_MAX_PLUS_ONE;
     in.image_type = out.image_type = BASIC;
     // in.ImageType = out.ImageType = ImageType.BASIC;
 
     //https://linux.die.net/man/3/calloc
-    in.data = (BYTE *) calloc(in.rows, in.columns);
+    in.data = (BYTE*) calloc(in.rows, in.columns);
 
     if (!in.data) {
-        //panic
+        perror("Input image data invalid.");
     }
 
-    out.data = (BYTE *) calloc(out.rows, out.columns);
+    out.data = (BYTE*) calloc(out.rows, out.columns);
 
     if (!out.data) {
-        //panic
+        perror("Output image data invalid.");
     }
 
     /* 5x5 mask set up */
     mask.rows = mask.columns = 5;
     mask.image_type = BASIC;
     int mask_data_size = mask.rows * mask.columns;
-    mask.data = (BYTE *) malloc(mask_data_size); //25 for this example
+    mask.data = (BYTE*) malloc(mask_data_size); //25 for this example
 
     /*
         init the 5x5 mask image as LaPlacian http://www.cse.dmu.ac.uk/~sexton/WWWPages/HIPR/html/log.html
@@ -60,22 +63,20 @@ int main (void) {
     */
 
    //set all mask values to -1
-   temp = (signed char *) mask.data;
-   for (i = 0; i < mask_data_size; ++i) {
+   temp = (signed char*) mask.data;
+   for (int i = 0; i < mask_data_size; ++i) {
        *temp = -1;
        ++temp;
    }
 
     //fix the middle one - the magic number 24 in the middle of the 2d array/matrice, aka indice 13
 
-    temp = (signed char *) mask.data + 13; //13 is middle indice to make 24
+    temp = (signed char*) mask.data + 13; //13 is middle indice to make 24
     *temp = 24;
-
 
     Image_in(&in);
     Convolve(&in, &mask, &out);
     Image_out(&out);
-
 
     //cleanup (todo later: run valgrind)
     free(in.data);
@@ -85,21 +86,23 @@ int main (void) {
     return EXIT_SUCCESS;
 }
 
-void Image_in(struct Image *img) {
+void Image_in(struct Image* img) {
     FILE* ifile = NULL;
-    int i = 0; //check scope later
 
-    ifile = fopen("MYIMAGE.RAW", "rb"); //rb read binary
+    const char* input_file_name = "MYIMAGE.RAW";
+    const char* read_binary = "rb";
 
-    for (i = 0; i < img->rows; ++i) {
-        fread(img->data + i * img->columns, img->columns, 1, ifile); //todo: make this fread_s. the 1 magic number is nmemb which means read 1 item??? idk. https://www.man7.org/linux/man-pages/man3/fread.3.html
+    ifile = fopen_s(input_file_name, read_binary); //rb read binary
+
+    for (int i = 0; i < img->rows; ++i) {
+        fread_s(img->data + i * img->columns, img->columns, 1, ifile); //todo: make this fread_s. the 1 magic number is nmemb which means read 1 item??? idk. https://www.man7.org/linux/man-pages/man3/fread.3.html
     }
 
     fclose(ifile);
 }
 
 // 2D discrete Convolution 
-void Convole(struct Image *in, struct Image *mask, struct Image *out) {
+void Convole(struct Image* in, struct Image* mask, struct Image* out) {
     long i, j, m, n, idx, jdx = 0;
     int ms, im, val = 0;
     BYTE* temp = NULL;
@@ -141,11 +144,13 @@ void Convole(struct Image *in, struct Image *mask, struct Image *out) {
 
 void Image_out (struct Image *out) {
     FILE* ofile = NULL;
-    int i = 0;
 
-    ofile = fopen("CONVOUT.RAW", "wb"); //wb write binary
-
-    for (i = 0; i < out->rows; ++i) {
+    const char* output_file_name = "CONVOUT.RAW";
+    const char* write_binary = "wb";
+    
+    ofile = fopen_s(output_file_name, write_binary); //wb write binary
+    
+    for (int i = 0; i < out->rows; ++i) {
         fwrite(out->data + i * out->columns, out->columns, 1, ofile); //todo later: fwrite_s
     }
 
