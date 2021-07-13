@@ -4,12 +4,12 @@
 
 typedef unsigned char BYTE;
 
-typedef enum ImageType {
+typedef enum {
     BASIC = 0,
     UINT = 1,
     REAL = 2,
     COMPLEX = 4
-};
+} ImageType;
 
 typedef struct Image {
     int rows;

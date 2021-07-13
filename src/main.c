@@ -26,8 +26,7 @@ int main (void) {
 
     in.rows = out.rows = 256;
     in.columns = out.columns = 256;
-    // in.image_type = out.image_type = BASIC;
-    in.ImageType = out.ImageType = ImageType.BASIC;
+    in.image_type = out.image_type = BASIC;
 
     //https://linux.die.net/man/3/calloc
     in.data = (BYTE*) calloc(in.rows, in.columns);
@@ -44,7 +43,7 @@ int main (void) {
 
     /* 5x5 mask set up */
     mask.rows = mask.columns = 5;
-    mask.image_type = ImageType.BASIC
+    mask.image_type = BASIC;
     int mask_data_size = mask.rows * mask.columns;
     mask.data = (BYTE*) malloc(mask_data_size); //25 for this example
 
