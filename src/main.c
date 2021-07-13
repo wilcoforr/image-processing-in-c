@@ -11,8 +11,6 @@
 /* custom image header */
 #include "image.h"
 
-#define UINT8_MAX_PLUS_ONE = 256
-
 
 int main (void) {
     /* extern magic cuz functions are defined after main */
@@ -26,10 +24,10 @@ int main (void) {
     /* indexes for mask generation section */
     signed char* temp = NULL;
 
-    in.rows = out.rows = uint8y UINT8_MAX_PLUS_ONE;
-    in.columns = out.columns = UINT8_MAX_PLUS_ONE;
-    in.image_type = out.image_type = BASIC;
-    // in.ImageType = out.ImageType = ImageType.BASIC;
+    in.rows = out.rows = 256;
+    in.columns = out.columns = 256;
+    // in.image_type = out.image_type = BASIC;
+    in.ImageType = out.ImageType = ImageType.BASIC;
 
     //https://linux.die.net/man/3/calloc
     in.data = (BYTE*) calloc(in.rows, in.columns);
@@ -46,7 +44,7 @@ int main (void) {
 
     /* 5x5 mask set up */
     mask.rows = mask.columns = 5;
-    mask.image_type = BASIC;
+    mask.image_type = ImageType.BASIC
     int mask_data_size = mask.rows * mask.columns;
     mask.data = (BYTE*) malloc(mask_data_size); //25 for this example
 
