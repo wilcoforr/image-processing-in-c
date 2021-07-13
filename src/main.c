@@ -89,10 +89,12 @@ void Image_in(struct Image* img) {
     const char* input_file_name = "MYIMAGE.RAW";
     const char* read_binary = "rb";
 
-    ifile = fopen_s(input_file_name, read_binary); //rb read binary
+    errno_t err;
+    err = fopen_s(&ifile, input_file_name, read_binary); //rb read binary
 
+    char list[100];
     for (int i = 0; i < img->rows; ++i) {
-        fread_s(img->data + i * img->columns, img->columns, 1, ifile); //todo: make this fread_s. the 1 magic number is nmemb which means read 1 item??? idk. https://www.man7.org/linux/man-pages/man3/fread.3.html
+        fread_s(list, img->data + i * img->columns, img->columns, 1, ifile); //todo: make this fread_s. the 1 magic number is nmemb which means read 1 item??? idk. https://www.man7.org/linux/man-pages/man3/fread.3.html
     }
 
     fclose(ifile);
@@ -145,7 +147,8 @@ void Image_out (struct Image *out) {
     const char* output_file_name = "CONVOUT.RAW";
     const char* write_binary = "wb";
     
-    ofile = fopen_s(output_file_name, write_binary); //wb write binary
+    errno_t err;
+    err = fopen_s(&ofile, output_file_name, write_binary); //wb write binary
     
     for (int i = 0; i < out->rows; ++i) {
         fwrite(out->data + i * out->columns, out->columns, 1, ofile); //todo later: fwrite_s
