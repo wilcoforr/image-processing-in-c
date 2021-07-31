@@ -75,7 +75,7 @@ int main (void) {
     Convolve(&in, &mask, &out);
     Image_out(&out);
 
-    //cleanup (todo later: run valgrind)
+    //cleanup
     free(in.data);
     free(out.data);
     free(mask.data);
@@ -90,11 +90,12 @@ void Image_in(struct Image* img) {
     const char* read_binary = "rb";
 
     errno_t err;
-    err = fopen_s(&ifile, input_file_name, read_binary); //rb read binary
+    err = fopen_s(&ifile, input_file_name, read_binary);
 
-    char list[100];
+    char buffer_list[100];
+
     for (int i = 0; i < img->rows; ++i) {
-        fread_s(list, img->data + i * img->columns, img->columns, 1, ifile); //todo: make this fread_s. the 1 magic number is nmemb which means read 1 item??? idk. https://www.man7.org/linux/man-pages/man3/fread.3.html
+        fread_s(buffer_list, img->data + i * img->columns, img->columns, 1, ifile);
     }
 
     fclose(ifile);
@@ -148,7 +149,7 @@ void Image_out (struct Image *out) {
     const char* write_binary = "wb";
     
     errno_t err;
-    err = fopen_s(&ofile, output_file_name, write_binary); //wb write binary
+    err = fopen_s(&ofile, output_file_name, write_binary);
     
     for (int i = 0; i < out->rows; ++i) {
         fwrite(out->data + i * out->columns, out->columns, 1, ofile); //todo later: fwrite_s
